@@ -24,20 +24,24 @@ def detect(source):
     global endstr
     beginstr = ''
     endstr = ''
+    begin_offset = -1
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    mystr = source.replace(' ', '').find('eval(function(p,a,c,k,e,')
-    if(mystr > 0):
-        beginstr = source[:mystr]
-    if(mystr != -1):
+    mystr = re.search('eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c['
+                      ' ]*,[ ]*k[ ]*,[ ]*e[ ]*,[ ]*', source)
+    if(mystr):
+        begin_offset = mystr.start()
+        beginstr = source[:begin_offset]
+    if(begin_offset != -1):
         """ Find endstr"""
-        if(source.split("')))", 1)[0] == source):
+        source_end = source[begin_offset:]
+        if(source_end.split("')))", 1)[0] == source_end):
             try:
-                endstr = source.split("}))", 1)[1]
+                endstr = source_end.split("}))", 1)[1]
             except IndexError:
                 endstr = ''
         else:
-            endstr = source.split("')))", 1)[1]
-    return (mystr != -1)
+            endstr = source_end.split("')))", 1)[1]
+    return (mystr is not None)
 
 
 def unpack(source):
@@ -55,8 +59,7 @@ def unpack(source):
     def lookup(match):
         """Look up symbols in the synthetic symtab."""
         word = match.group(0)
-        word2 = symtab[int(word)] if radix == 1 else symtab[unbase(word)]
-        return word2 or word
+        return symtab[unbase(word)] or word
 
     source = re.sub(r'\b\w+\b', lookup, payload)
     return _replacestrings(source)

@@ -20,11 +20,11 @@ six = __import__("six")
 
 # acorn used char codes to squeeze the last bit of performance out
 # Beautifier is okay without that, so we're using regex
-# permit $ (36) and @ (64). @ is used in ES7 decorators.
+# permit #(23), $ (36), and @ (64). @ is used in ES7 decorators.
 # 65 through 91 are uppercase letters.
 # permit _ (95).
 # 97 through 123 are lowercase letters.
-_baseASCIIidentifierStartChars = six.u(r"\x24\x40\x41-\x5a\x5f\x61-\x7a")
+_baseASCIIidentifierStartChars = six.u(r"\x23\x24\x40\x41-\x5a\x5f\x61-\x7a")
 
 # inside an identifier @ is not allowed but 0-9 are.
 _baseASCIIidentifierChars = six.u(r"\x24\x30-\x39\x41-\x5a\x5f\x61-\x7a")
@@ -39,17 +39,24 @@ _nonASCIIidentifierChars = six.u(r"\u0300-\u036f\u0483-\u0487\u0591-\u05bd\u05bf
 #_nonASCIIidentifierStart = re.compile("[" + _nonASCIIidentifierStartChars + "]")
 #_nonASCIIidentifier = re.compile("[" + _nonASCIIidentifierStartChars + _nonASCIIidentifierChars + "]")
 
-_identifierStart = six.u("[") + \
+_identifierStart = six.u(r"(?:\\u[0-9a-fA-F]{4}|[") + \
     _baseASCIIidentifierStartChars + \
     _nonASCIIidentifierStartChars + \
-    six.u("]")
-_identifierChars = six.u("[") + \
+    six.u("])")
+_identifierChars = six.u(r"(?:\\u[0-9a-fA-F]{4}|[") + \
     _baseASCIIidentifierChars + \
     _nonASCIIidentifierStartChars + \
     _nonASCIIidentifierChars + \
-    six.u("]*")
+    six.u("])*")
 
 identifier = re.compile(_identifierStart + _identifierChars)
+
+identifierStart = re.compile(_identifierStart)
+identifierMatch = re.compile(six.u(r"(?:\\u[0-9a-fA-F]{4}|[") + \
+    _baseASCIIidentifierChars + \
+    _nonASCIIidentifierStartChars + \
+    _nonASCIIidentifierChars + \
+    six.u("])+"))
 
 _nonASCIIwhitespace = re.compile(
     six.u(r"[\u1680\u180e\u2000-\u200a\u202f\u205f\u3000\ufeff]"))
