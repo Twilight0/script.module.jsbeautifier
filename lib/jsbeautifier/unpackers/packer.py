@@ -17,13 +17,14 @@ import string
 from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
+beginstr = ''
+endstr = ''
 
 
 def detect(source):
     global beginstr
     global endstr
-    beginstr = ''
-    endstr = ''
+
     begin_offset = -1
     """Detects whether `source` is P.A.C.K.E.R. coded."""
     mystr = re.search('eval[ ]*\([ ]*function[ ]*\([ ]*p[ ]*,[ ]*a[ ]*,[ ]*c['
